@@ -1,0 +1,26 @@
+[Unit]
+Description=Xray VLESS + REALITY server
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+ContainerName=xray-server
+Image=localhost/xray-server:26.3.27
+
+PublishPort=443:443
+
+Secret=xray-server-private-key,type=env,target=XRAY_PRIVATE_KEY
+Environment=XRAY_UUID=00000000-0000-0000-0000-000000000000
+Environment=XRAY_REALITY_SERVER_NAME=example.invalid
+
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+AddCapability=NET_BIND_SERVICE
+
+[Service]
+Restart=on-failure
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=multi-user.target
