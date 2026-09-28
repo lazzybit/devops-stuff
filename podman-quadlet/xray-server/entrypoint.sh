@@ -7,6 +7,9 @@
 #   XRAY_UUID                  VLESS UUID
 #   XRAY_REALITY_SERVER_NAME   REALITY TLS server name (domain)
 #   XRAY_PRIVATE_KEY           REALITY x25519 private key (normally a Podman secret)
+#
+# Optional:
+#   XRAY_LOG_LEVEL             debug | info | warning | error | none (default: none)
 
 # A Cloudflare WARP wireguard outbound (tag "warp") is always added.
 # Account state is kept in /var/lib/warp.
@@ -28,6 +31,12 @@ require_env XRAY_UUID
 require_env XRAY_REALITY_SERVER_NAME
 require_env XRAY_PRIVATE_KEY
 
+log_level="${XRAY_LOG_LEVEL:-none}"
+case "$log_level" in
+    debug | info | warning | error | none) ;;
+    *) fail "XRAY_LOG_LEVEL must be one of: debug, info, warning, error, none" ;;
+esac
+
 config=/run/xray/config.json
 
 install -d -m0700 "$(dirname "$config")"
@@ -39,9 +48,10 @@ jq -n \
     --arg uuid "$XRAY_UUID" \
     --arg server_name "$XRAY_REALITY_SERVER_NAME" \
     --arg private_key "$XRAY_PRIVATE_KEY" \
+    --arg log_level "$log_level" \
     --argjson warp_outbound "$warp_outbound" \
     '{
-        log: { loglevel: "none" },
+        log: { loglevel: $log_level },
         dns: {
             servers: [
                 "https+local://doh.dns.sb/dns-query",

@@ -85,6 +85,7 @@ The unit starts on boot. For rootless use, install into
 | `XRAY_UUID` | VLESS UUID. |
 | `XRAY_REALITY_SERVER_NAME` | REALITY TLS server name (domain). |
 | `XRAY_PRIVATE_KEY` | REALITY x25519 private key. |
+| `XRAY_LOG_LEVEL` | Error log level: `debug`, `info`, `warning`, `error` or `none` (default). |
 
 `XRAY_UUID`, `XRAY_REALITY_SERVER_NAME` and `XRAY_PRIVATE_KEY` are required.
 
