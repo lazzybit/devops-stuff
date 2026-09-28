@@ -9,8 +9,6 @@ Image=localhost/xray-server:26.3.27
 
 PublishPort=443:443
 
-Volume=xray-server-warp.volume:/var/lib/warp
-
 Secret=xray-server-private-key,type=env,target=XRAY_PRIVATE_KEY
 
 ReadOnly=true

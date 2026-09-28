@@ -2,18 +2,18 @@
 #
 # Minimal Cloudflare WARP client for the xray-server image.
 #
-#   warp.sh ensure     register a WARP account if no state exists yet
-#   warp.sh register   force a fresh registration
+#   warp.sh register   register a fresh WARP account
 #   warp.sh outbound   print the Xray wireguard outbound (tag "warp")
 #
-# The account state lives in $WARP_STATE_DIR so it can be kept in a volume.
+# A fresh account is registered on every start; the state is written to
+# $WARP_STATE_DIR, a temporary directory inside the container.
 # The container environment is assumed to be stable: no extra probing or
 # pretty output, failures abort the caller via the non-zero exit status.
 
 set -eu
 umask 077
 
-WARP_STATE_DIR="${WARP_STATE_DIR:-/var/lib/warp}"
+WARP_STATE_DIR="${WARP_STATE_DIR:-/run/warp}"
 WARP_STATE_FILE="$WARP_STATE_DIR/warp.json"
 WARP_API="https://api.cloudflareclient.com/v0a2158/reg"
 WARP_PEER_PUBLIC_KEY="bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
@@ -88,9 +88,6 @@ outbound() {
 }
 
 case "${1:-}" in
-    ensure)
-        [ -f "$WARP_STATE_FILE" ] || register
-        ;;
     register)
         register
         ;;
@@ -98,7 +95,7 @@ case "${1:-}" in
         outbound
         ;;
     *)
-        echo "usage: warp.sh {ensure|register|outbound}" >&2
+        echo "usage: warp.sh {register|outbound}" >&2
         exit 2
         ;;
 esac

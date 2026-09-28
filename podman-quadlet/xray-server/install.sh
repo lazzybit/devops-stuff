@@ -17,7 +17,6 @@ image=$(sed -n 's/^[[:space:]]*Image=//p' "$script_dir/$unit_name.container" | h
 podman build -t "$image" "$script_dir"
 
 install -d -m0755 "$unit_dir/$unit_name.container.d"
-install -m0644 "$script_dir/$unit_name-warp.volume" "$unit_dir/$unit_name-warp.volume"
 install -m0644 "$script_dir/$unit_name.container" "$unit_dir/$unit_name.container"
 [ -f "$unit_dir/$unit_name.container.d/10-environment.conf" ] \
     || install -m0644 "$script_dir/$unit_name.container.d/10-environment.conf" \

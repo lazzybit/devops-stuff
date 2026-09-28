@@ -1,19 +1,6 @@
 # xray-server
 
-Xray VLESS + REALITY server as a Podman Quadlet unit, with a Cloudflare WARP
-outbound.
-
-## Files
-
-| File | Purpose |
-| --- | --- |
-| `Containerfile` | Image with a pinned Xray release. |
-| `entrypoint.sh` | Renders the config and runs Xray. |
-| `warp.sh` | Registers a Cloudflare WARP account and emits the WireGuard outbound. |
-| `xray-server.container` | Quadlet unit. |
-| `xray-server.container.d/10-environment.conf` | Configuration drop-in template. |
-| `xray-server-warp.volume` | Quadlet volume holding the WARP account state. |
-| `install.sh` | Installer. |
+Xray VLESS + REALITY server as a Podman Quadlet unit.
 
 ## Requirements
 
@@ -58,33 +45,6 @@ podman run --rm --secret xray-server-private-key,type=env,target=XRAY_PRIVATE_KE
     --entrypoint sh localhost/xray-server:26.3.27 \
     -c 'xray x25519 -i "$XRAY_PRIVATE_KEY"' \
     | awk '/PublicKey/ { print $NF }'
-```
-
-## Client
-
-| Setting | Value |
-| --- | --- |
-| Protocol | VLESS |
-| Address / Port | server address, `443` |
-| UUID | `XRAY_UUID` |
-| Flow | `xtls-rprx-vision` |
-| Transport | `raw` (TCP) |
-| Security | REALITY |
-| SNI / serverName | `XRAY_REALITY_SERVER_NAME` |
-| Public key | `Password (PublicKey)` |
-| Short ID | empty |
-| Fingerprint | `chrome` |
-
-## Cloudflare WARP
-
-A WireGuard outbound with tag `warp` is always added. It always dials
-`engage.cloudflareclient.com:2408`; the endpoint returned by the registration
-API is ignored. Account state lives in the `xray-server-warp` volume. To reset it, stop the service and remove the volume:
-
-```sh
-systemctl stop xray-server.service
-podman volume rm xray-server-warp
-systemctl start xray-server.service
 ```
 
 ## Update

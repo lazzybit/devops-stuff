@@ -11,8 +11,8 @@
 # Optional:
 #   XRAY_LOG_LEVEL             debug | info | warning | error (unset: none)
 
-# A Cloudflare WARP wireguard outbound (tag "warp") is always added.
-# Account state is kept in /var/lib/warp.
+# A Cloudflare WARP wireguard outbound (tag "warp") is always added, using a
+# fresh account registered on every start (state under /run/warp).
 
 set -eu
 umask 077
@@ -41,7 +41,7 @@ config=/run/xray/config.json
 
 install -d -m0700 "$(dirname "$config")"
 
-/usr/local/bin/warp.sh ensure
+/usr/local/bin/warp.sh register
 warp_outbound="$(/usr/local/bin/warp.sh outbound)"
 
 jq -n \
