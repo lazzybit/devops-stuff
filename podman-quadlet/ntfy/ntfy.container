@@ -1,0 +1,37 @@
+[Unit]
+Description=ntfy push notification server
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+ContainerName=ntfy
+Image=docker.io/binwiederhier/ntfy:latest
+AutoUpdate=registry
+Exec=serve
+
+# Reference defaults (see references/roles/ntfy).
+Environment=NTFY_AUTH_DEFAULT_ACCESS=deny-all
+Environment=NTFY_AUTH_ACCESS=*:up*:write-only
+Environment=NTFY_BEHIND_PROXY=true
+Environment=NTFY_ENABLE_LOGIN=true
+Environment=NTFY_REQUIRE_LOGIN=true
+Environment=NTFY_UPSTREAM_BASE_URL=https://ntfy.sh
+
+# Declarative users and the message cache are recreated on every start.
+Environment=NTFY_AUTH_FILE=/var/lib/ntfy/user.db
+Environment=NTFY_CACHE_FILE=/var/lib/ntfy/cache.db
+
+Tmpfs=/var/lib/ntfy:rw,mode=0700
+Tmpfs=/tmp:rw,mode=1777
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+AddCapability=NET_BIND_SERVICE
+Ulimit=nofile=20500:20500
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
