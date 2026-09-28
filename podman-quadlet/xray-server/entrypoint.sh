@@ -62,7 +62,7 @@ jq -n \
         routing: {
             domainStrategy: "IPIfNonMatch",
             rules: [
-                { type: "field", domain: ["geosite:reddit", "geosite:google", "geosite:youtube"], outboundTag: "warp" },
+                { type: "field", domain: ["geosite:reddit"], outboundTag: "warp" },
                 { type: "field", ip: ["geoip:cn"], outboundTag: "block" },
                 { type: "field", domain: ["geosite:cn"], outboundTag: "block" },
                 { type: "field", protocol: ["bittorrent"], outboundTag: "block" }
