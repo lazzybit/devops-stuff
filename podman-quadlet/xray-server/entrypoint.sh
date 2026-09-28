@@ -52,13 +52,6 @@ jq -n \
     --argjson warp_outbound "$warp_outbound" \
     '{
         log: { loglevel: $log_level },
-        dns: {
-            servers: [
-                "quic+local://dns.quad9.net",
-                "https+local://doh.dns.sb/dns-query"
-            ],
-            queryStrategy: "UseIP"
-        },
         routing: {
             domainStrategy: "IPIfNonMatch",
             rules: [
