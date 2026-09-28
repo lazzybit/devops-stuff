@@ -54,8 +54,8 @@ jq -n \
         log: { loglevel: $log_level },
         dns: {
             servers: [
-                "https+local://doh.dns.sb/dns-query",
-                "https+local://dns.quad9.net/dns-query"
+                "quic+local://dns.quad9.net",
+                "https+local://doh.dns.sb/dns-query"
             ],
             queryStrategy: "UseIP"
         },
