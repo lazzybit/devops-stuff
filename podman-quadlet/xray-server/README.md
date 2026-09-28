@@ -28,10 +28,11 @@ podman-quadlet/xray-server/install.sh
 ```
 
 Fill in the installed drop-in with `XRAY_UUID` and `XRAY_REALITY_SERVER_NAME`,
-create the `xray-server-private-key` secret (see Key pair), then start the
-service:
+create the `xray-server-private-key` secret (see Key pair), reload systemd and
+then start the service:
 
 ```sh
+systemctl daemon-reload
 systemctl start xray-server.service
 journalctl -u xray-server.service -f
 ```
@@ -89,5 +90,6 @@ systemctl start xray-server.service
 
 ```sh
 podman-quadlet/xray-server/install.sh
+systemctl daemon-reload
 systemctl restart xray-server.service
 ```
