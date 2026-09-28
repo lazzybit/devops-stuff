@@ -1,0 +1,3 @@
+[Network]
+NetworkName=cloudflare-tunnel
+Driver=bridge

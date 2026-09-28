@@ -1,0 +1,24 @@
+[Unit]
+Description=Cloudflare Tunnel
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+ContainerName=cloudflare-tunnel
+Image=docker.io/cloudflare/cloudflared:latest
+AutoUpdate=registry
+Network=cloudflare-tunnel.network
+
+Secret=cloudflare-tunnel-token,type=env,target=TUNNEL_TOKEN
+Exec=tunnel run
+
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
