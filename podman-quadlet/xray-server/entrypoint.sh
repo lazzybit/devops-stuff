@@ -73,7 +73,6 @@ jq -n \
                 listen: "0.0.0.0",
                 port: 443,
                 protocol: "vless",
-                tag: "vless-inbound",
                 settings: {
                     clients: [
                         { id: $uuid, flow: "xtls-rprx-vision" }
