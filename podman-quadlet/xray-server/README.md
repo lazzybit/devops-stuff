@@ -8,7 +8,9 @@ Xray VLESS + REALITY server as a Podman Quadlet unit.
 | --- | --- |
 | `Containerfile` | Image with a pinned Xray release. |
 | `entrypoint.sh` | Renders the config and runs Xray. |
+| `warp.sh` | Registers a Cloudflare WARP account and emits the WireGuard outbound. |
 | `xray-server.container` | Quadlet unit. |
+| `xray-server-warp.volume` | Quadlet volume holding the WARP account state. |
 
 ## Requirements
 
@@ -49,6 +51,8 @@ Set `XRAY_UUID` and `XRAY_REALITY_SERVER_NAME` in
 `podman-quadlet/xray-server/xray-server.container`, then:
 
 ```sh
+sudo install -m0644 podman-quadlet/xray-server/xray-server-warp.volume \
+    /etc/containers/systemd/xray-server-warp.volume
 sudo install -m0644 podman-quadlet/xray-server/xray-server.container \
     /etc/containers/systemd/xray-server.container
 sudo systemctl daemon-reload
@@ -82,7 +86,20 @@ The unit starts on boot. For rootless use, install into
 | `XRAY_REALITY_SERVER_NAME` | REALITY TLS server name (domain). |
 | `XRAY_PRIVATE_KEY` | REALITY x25519 private key. |
 
-All three are required.
+`XRAY_UUID`, `XRAY_REALITY_SERVER_NAME` and `XRAY_PRIVATE_KEY` are required.
+
+## Cloudflare WARP
+
+A WireGuard outbound with tag `warp` is always added. Account state lives in
+the `xray-server-warp` volume.
+
+To reset it, stop the service and remove the volume:
+
+```sh
+sudo systemctl stop xray-server.service
+podman volume rm xray-server-warp
+sudo systemctl start xray-server.service
+```
 
 ## Update
 

@@ -16,7 +16,7 @@ RUN set -eux; \
         aarch64) asset="Xray-linux-arm64-v8a.zip"; sha256="${XRAY_SHA256_ARM64}" ;; \
         *) echo "unsupported architecture: $(apk --print-arch)" >&2; exit 1 ;; \
     esac; \
-    apk add --no-cache ca-certificates jq; \
+    apk add --no-cache ca-certificates curl jq wireguard-tools; \
     apk add --no-cache --virtual .fetch-deps unzip; \
     wget -q -O /tmp/xray.zip \
         "https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSION}/${asset}"; \
@@ -31,7 +31,7 @@ RUN set -eux; \
 
 ENV XRAY_LOCATION_ASSET=/usr/local/share/xray
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod 0755 /usr/local/bin/entrypoint.sh
+COPY entrypoint.sh warp.sh /usr/local/bin/
+RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/warp.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

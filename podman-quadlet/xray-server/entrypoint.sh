@@ -8,6 +8,9 @@
 #   XRAY_REALITY_SERVER_NAME   REALITY TLS server name (domain)
 #   XRAY_PRIVATE_KEY           REALITY x25519 private key (normally a Podman secret)
 
+# A Cloudflare WARP wireguard outbound (tag "warp") is always added.
+# Account state is kept in /var/lib/warp.
+
 set -eu
 umask 077
 
@@ -29,10 +32,14 @@ config=/run/xray/config.json
 
 install -d -m0700 "$(dirname "$config")"
 
+/usr/local/bin/warp.sh ensure
+warp_outbound="$(/usr/local/bin/warp.sh outbound)"
+
 jq -n \
     --arg uuid "$XRAY_UUID" \
     --arg server_name "$XRAY_REALITY_SERVER_NAME" \
     --arg private_key "$XRAY_PRIVATE_KEY" \
+    --argjson warp_outbound "$warp_outbound" \
     '{
         log: { loglevel: "none" },
         dns: {
@@ -45,6 +52,7 @@ jq -n \
         routing: {
             domainStrategy: "IPIfNonMatch",
             rules: [
+                { type: "field", domain: ["geosite:reddit"], outboundTag: "warp" },
                 { type: "field", ip: ["geoip:cn"], outboundTag: "block" },
                 { type: "field", domain: ["geosite:cn"], outboundTag: "block" },
                 { type: "field", protocol: ["bittorrent"], outboundTag: "block" }
@@ -83,7 +91,8 @@ jq -n \
         ],
         outbounds: [
             { protocol: "freedom", tag: "direct" },
-            { protocol: "blackhole", tag: "block" }
+            { protocol: "blackhole", tag: "block" },
+            $warp_outbound
         ]
     }' > "$config"
 

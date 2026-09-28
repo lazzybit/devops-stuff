@@ -1,0 +1,5 @@
+[Unit]
+Description=Cloudflare WARP account state for xray-server
+
+[Volume]
+VolumeName=xray-server-warp
