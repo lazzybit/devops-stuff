@@ -12,9 +12,6 @@ PublishPort=443:443
 Volume=xray-server-warp.volume:/var/lib/warp
 
 Secret=xray-server-private-key,type=env,target=XRAY_PRIVATE_KEY
-Environment=XRAY_UUID=00000000-0000-0000-0000-000000000000
-Environment=XRAY_REALITY_SERVER_NAME=example.invalid
-Environment=XRAY_LOG_LEVEL=none
 
 ReadOnly=true
 NoNewPrivileges=true

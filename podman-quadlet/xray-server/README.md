@@ -14,7 +14,7 @@ Xray VLESS + REALITY server as a Podman Quadlet unit.
 
 ## Requirements
 
-- Podman >= 4.6 with Quadlet, and systemd
+- Podman >= 5.0 with Quadlet (for drop-in support), and systemd
 - Network access during the image build
 
 ## Build
@@ -47,21 +47,39 @@ podman run --rm --secret xray-server-private-key,type=env,target=XRAY_PRIVATE_KE
 
 ## Install
 
-Set `XRAY_UUID` and `XRAY_REALITY_SERVER_NAME` in
-`podman-quadlet/xray-server/xray-server.container`, then:
+The Quadlet unit ships no default values. Install the units, then set the
+required variables in a Quadlet drop-in over the unit:
 
 ```sh
 sudo install -m0644 podman-quadlet/xray-server/xray-server-warp.volume \
     /etc/containers/systemd/xray-server-warp.volume
 sudo install -m0644 podman-quadlet/xray-server/xray-server.container \
     /etc/containers/systemd/xray-server.container
+
+sudo install -d -m0755 /etc/containers/systemd/xray-server.container.d
+sudo tee /etc/containers/systemd/xray-server.container.d/10-environment.conf >/dev/null <<'EOF'
+[Container]
+Environment=XRAY_UUID=<uuid>
+Environment=XRAY_REALITY_SERVER_NAME=<domain>
+EOF
+
 sudo systemctl daemon-reload
 sudo systemctl start xray-server.service
 journalctl -u xray-server.service -f
 ```
 
+Replace the values in the drop-in with your own. `XRAY_UUID` and
+`XRAY_REALITY_SERVER_NAME` are required. `XRAY_LOG_LEVEL` is optional: leave it
+unset to disable logging, or add an `Environment=XRAY_LOG_LEVEL=...` line to pick
+a level.
+
+Do not add `XRAY_PRIVATE_KEY` here: it is injected from the Podman secret set up
+above.
+
 The unit starts on boot. For rootless use, install into
-`~/.config/containers/systemd/` and use `systemctl --user`.
+`~/.config/containers/systemd/`, create the drop-in under
+`~/.config/containers/systemd/xray-server.container.d/` and use
+`systemctl --user`.
 
 ## Client
 
@@ -85,9 +103,11 @@ The unit starts on boot. For rootless use, install into
 | `XRAY_UUID` | VLESS UUID. |
 | `XRAY_REALITY_SERVER_NAME` | REALITY TLS server name (domain). |
 | `XRAY_PRIVATE_KEY` | REALITY x25519 private key. |
-| `XRAY_LOG_LEVEL` | Error log level: `debug`, `info`, `warning`, `error` or `none` (default). |
+| `XRAY_LOG_LEVEL` | Error log level: `debug`, `info`, `warning` or `error`; leave unset to disable logging. |
 
 `XRAY_UUID`, `XRAY_REALITY_SERVER_NAME` and `XRAY_PRIVATE_KEY` are required.
+The unit sets none of them; provide the first two through a Quadlet drop-in
+(see Install) and the private key through the Podman secret.
 
 ## Cloudflare WARP
 

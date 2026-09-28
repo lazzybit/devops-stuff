@@ -9,7 +9,7 @@
 #   XRAY_PRIVATE_KEY           REALITY x25519 private key (normally a Podman secret)
 #
 # Optional:
-#   XRAY_LOG_LEVEL             debug | info | warning | error | none (default: none)
+#   XRAY_LOG_LEVEL             debug | info | warning | error (unset: none)
 
 # A Cloudflare WARP wireguard outbound (tag "warp") is always added.
 # Account state is kept in /var/lib/warp.
