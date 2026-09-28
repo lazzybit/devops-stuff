@@ -77,8 +77,9 @@ podman run --rm --secret xray-server-private-key,type=env,target=XRAY_PRIVATE_KE
 
 ## Cloudflare WARP
 
-A WireGuard outbound with tag `warp` is always added. Account state lives in the
-`xray-server-warp` volume. To reset it, stop the service and remove the volume:
+A WireGuard outbound with tag `warp` is always added. It always dials
+`engage.cloudflareclient.com:2408`; the endpoint returned by the registration
+API is ignored. Account state lives in the `xray-server-warp` volume. To reset it, stop the service and remove the volume:
 
 ```sh
 systemctl stop xray-server.service

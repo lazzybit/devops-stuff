@@ -17,6 +17,8 @@ WARP_STATE_DIR="${WARP_STATE_DIR:-/var/lib/warp}"
 WARP_STATE_FILE="$WARP_STATE_DIR/warp.json"
 WARP_API="https://api.cloudflareclient.com/v0a2158/reg"
 WARP_PEER_PUBLIC_KEY="bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+# The WARP endpoint is pinned on purpose: always use this host:port and never
+# the endpoint returned by the registration API.
 WARP_ENDPOINT="engage.cloudflareclient.com:2408"
 
 rand_chars() {
@@ -52,13 +54,13 @@ register() {
         --arg private_key "$private_key" \
         --argjson reserved "$reserved" \
         --arg fallback_key "$WARP_PEER_PUBLIC_KEY" \
-        --arg fallback_endpoint "$WARP_ENDPOINT" \
+        --arg endpoint "$WARP_ENDPOINT" \
         '{
             id: .id,
             token: .token,
             private_key: $private_key,
             public_key: (.config.peers[0].public_key // $fallback_key),
-            endpoint: (.config.peers[0].endpoint.host // $fallback_endpoint),
+            endpoint: $endpoint,
             address_v4: .config.interface.addresses.v4,
             address_v6: .config.interface.addresses.v6,
             reserved: $reserved
@@ -67,7 +69,7 @@ register() {
 }
 
 outbound() {
-    jq -c '{
+    jq -c --arg endpoint "$WARP_ENDPOINT" '{
         protocol: "wireguard",
         tag: "warp",
         settings: {
@@ -76,7 +78,7 @@ outbound() {
             peers: [{
                 publicKey: .public_key,
                 allowedIPs: ["0.0.0.0/0", "::/0"],
-                endpoint: .endpoint
+                endpoint: $endpoint
             }],
             noKernelTun: true,
             mtu: 1280,
