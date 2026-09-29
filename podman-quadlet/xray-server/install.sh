@@ -29,3 +29,8 @@ install -m0644 "$script_dir/xray-server-main/xray-server-main.container" "$unit_
         "$unit_dir/xray-server-main.container.d/10-environment.conf"
 
 install -m0644 "$script_dir/xray-server-warp/xray-server-warp.container" "$unit_dir/xray-server-warp.container"
+
+install -d -m0755 "$unit_dir/xray-server-warp.container.d"
+[ -f "$unit_dir/xray-server-warp.container.d/10-environment.conf" ] \
+    || install -m0644 "$script_dir/xray-server-warp/xray-server-warp.container.d/10-environment.conf" \
+        "$unit_dir/xray-server-warp.container.d/10-environment.conf"

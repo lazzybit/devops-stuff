@@ -22,6 +22,17 @@
 set -eu
 umask 077
 
+fail() {
+    echo "warp: $*" >&2
+    exit 1
+}
+
+log_level="${XRAY_LOG_LEVEL:-none}"
+case "$log_level" in
+    debug | info | warning | error | none) ;;
+    *) fail "XRAY_LOG_LEVEL must be one of: debug, info, warning, error, none" ;;
+esac
+
 # Wall-clock budget for Xray to start accepting connections.
 LISTEN_DEADLINE=15
 
@@ -34,8 +45,8 @@ install -d -m0700 "$(dirname "$config")"
 /usr/local/bin/warp.sh register
 warp_outbound="$(/usr/local/bin/warp.sh outbound)"
 
-jq -n --argjson warp_outbound "$warp_outbound" '{
-    log: { loglevel: "warning" },
+jq -n --argjson warp_outbound "$warp_outbound" --arg log_level "$log_level" '{
+    log: { loglevel: $log_level },
     inbounds: [
         {
             listen: "0.0.0.0",
