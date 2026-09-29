@@ -1,0 +1,32 @@
+[Unit]
+Description=Cloudflare WARP egress proxy for xray-server
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+ContainerName=xray-server-warp
+Image=localhost/xray-server-warp:26.3.27
+
+Network=xray-server.network
+
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=ALL
+
+# WARP may register an account that cannot carry traffic. The entrypoint fails
+# fast in that case; afterwards the health check keeps watching, so a WARP
+# account Cloudflare invalidates later also ends in a restart with a new one.
+HealthCmd=/usr/local/bin/warp-healthcheck.sh
+HealthInterval=15s
+HealthTimeout=10s
+HealthRetries=2
+HealthStartPeriod=30s
+HealthOnFailure=kill
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=multi-user.target

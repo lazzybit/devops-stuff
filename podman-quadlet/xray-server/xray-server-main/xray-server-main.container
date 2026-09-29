@@ -1,13 +1,14 @@
 [Unit]
 Description=Xray VLESS + REALITY server
-Wants=network-online.target
-After=network-online.target
+Wants=network-online.target xray-server-warp.service
+After=network-online.target xray-server-warp.service
 
 [Container]
-ContainerName=xray-server
-Image=localhost/xray-server:26.3.27
+ContainerName=xray-server-main
+Image=localhost/xray-server-main:26.3.27
 
 PublishPort=443:443
+Network=xray-server.network
 
 Secret=xray-server-private-key,type=env,target=XRAY_PRIVATE_KEY
 

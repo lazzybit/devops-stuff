@@ -1,0 +1,27 @@
+FROM alpine:3.21
+
+ARG XRAY_VERSION=26.3.27
+ARG XRAY_SHA256_AMD64=23cd9af937744d97776ee35ecad4972cf4b2109d1e0fe6be9930467608f7c8ae
+ARG XRAY_SHA256_ARM64=4d30283ae614e3057f730f67cd088a42be6fdf91f8639d82cb69e48cde80413c
+
+RUN set -eux; \
+    case "$(apk --print-arch)" in \
+        x86_64) asset="Xray-linux-64.zip"; sha256="${XRAY_SHA256_AMD64}" ;; \
+        aarch64) asset="Xray-linux-arm64-v8a.zip"; sha256="${XRAY_SHA256_ARM64}" ;; \
+        *) echo "unsupported architecture: $(apk --print-arch)" >&2; exit 1 ;; \
+    esac; \
+    apk add --no-cache ca-certificates curl jq wireguard-tools; \
+    apk add --no-cache --virtual .fetch-deps unzip; \
+    wget -q -O /tmp/xray.zip \
+        "https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSION}/${asset}"; \
+    echo "${sha256}  /tmp/xray.zip" | sha256sum -c -; \
+    unzip -q /tmp/xray.zip -d /tmp/xray; \
+    install -m 0755 /tmp/xray/xray /usr/local/bin/xray; \
+    rm -rf /tmp/xray /tmp/xray.zip; \
+    apk del .fetch-deps; \
+    xray version
+
+COPY entrypoint.sh warp.sh warp-healthcheck.sh /usr/local/bin/
+RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/warp.sh /usr/local/bin/warp-healthcheck.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
